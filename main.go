@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
 )
 
@@ -18,6 +19,7 @@ var rootCmd = &cobra.Command{
 	Short: "sws is a simple web server",
 	Long:  `sws is a simple web server that can be used to serve static files from a directory.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		gin.SetMode(gin.ReleaseMode)
 		cobra.CheckErr(NewServer(dir, port, ssl, certFile, keyFile).ListenAndServe())
 	},
 }

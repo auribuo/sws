@@ -3,7 +3,15 @@ package main
 import (
 	"fmt"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
+
+func NoCache() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Header("Cache-Control", "no-cache, no-store, must-revalidate")
+	}
+}
 
 type ListenAndServer interface {
 	ListenAndServe() error
@@ -15,9 +23,15 @@ type HttpServer struct {
 }
 
 func (s *HttpServer) ListenAndServe() error {
+	router := gin.New()
+	router.StaticFS("/", http.Dir(s.Dir))
+	router.Use(gin.Logger())
+	router.Use(gin.Recovery())
+	router.Use(NoCache())
+
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%d", s.Port),
-		Handler: http.FileServer(http.Dir(s.Dir)),
+		Handler: router,
 	}
 	return server.ListenAndServe()
 }
@@ -30,9 +44,15 @@ type HttpsServer struct {
 }
 
 func (s *HttpsServer) ListenAndServe() error {
+	router := gin.New()
+	router.StaticFS("/", http.Dir(s.Dir))
+	router.Use(gin.Logger())
+	router.Use(gin.Recovery())
+	router.Use(NoCache())
+
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%d", s.Port),
-		Handler: http.FileServer(http.Dir(s.Dir)),
+		Handler: router,
 	}
 	return server.ListenAndServeTLS(s.Cert, s.Key)
 }
