@@ -24,10 +24,10 @@ type HttpServer struct {
 
 func (s *HttpServer) ListenAndServe() error {
 	router := gin.New()
-	router.StaticFS("/", http.Dir(s.Dir))
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
 	router.Use(NoCache())
+	router.Static("/", s.Dir)
 
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%d", s.Port),
@@ -45,7 +45,7 @@ type HttpsServer struct {
 
 func (s *HttpsServer) ListenAndServe() error {
 	router := gin.New()
-	router.StaticFS("/", http.Dir(s.Dir))
+	router.Static("/", s.Dir)
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
 	router.Use(NoCache())
